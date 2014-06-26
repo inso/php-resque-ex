@@ -1,8 +1,10 @@
 <?php
 
+namespace Resque;
+
 if (class_exists('Redis'))
 {
-	class RedisApi extends Redis
+	class RedisApi extends \Redis
 	{
 		private static $defaultNamespace = 'resque:';
 
@@ -20,7 +22,7 @@ if (class_exists('Redis'))
 		function establishConnection()
 		{
 			$this->pconnect($this->host, (int) $this->port, (int) $this->timeout);
-			$this->setOption(Redis::OPT_PREFIX, self::$defaultNamespace);
+			$this->setOption(\Redis::OPT_PREFIX, self::$defaultNamespace);
 		}
 
 		public function prefix($namespace)
@@ -31,18 +33,12 @@ if (class_exists('Redis'))
 			}
 			self::$defaultNamespace = $namespace;
 
-			$this->setOption(Redis::OPT_PREFIX, self::$defaultNamespace);
+			$this->setOption(\Redis::OPT_PREFIX, self::$defaultNamespace);
 		}
 	}
 }
 else
 {
-	// Third- party apps may have already loaded Resident from elsewhere
-	// so lets be careful.
-	if(!class_exists('Redisent', false)) {
-		require_once dirname(__FILE__) . '/../Redisent/Redisent.php';
-	}
-
 	/**
 	 * Extended Redisent class used by Resque for all communication with
 	 * redis. Essentially adds namespace support to Redisent.
@@ -52,7 +48,7 @@ else
 	 * @copyright	(c) 2010 Chris Boulton
 	 * @license		http://www.opensource.org/licenses/mit-license.php
 	 */
-	class RedisApi extends Redisent
+	class RedisApi extends \Redisent
 	{
 		/**
 		 * Redis namespace
@@ -148,11 +144,11 @@ else
 			try {
 				return parent::__call($name, $args[1]);
 			}
-			catch(RedisException $e) {
+			catch(\RedisException $e) {
 				return false;
 			}
 		}
 	}
 }
 
-class Resque_Redis extends redisApi {}
+class Redis extends RedisApi {}
